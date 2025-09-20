@@ -30,4 +30,3 @@ for q in queries:
 def classify_text(text):
     pred = pipe(text)[0]
     return pred['label']
-
