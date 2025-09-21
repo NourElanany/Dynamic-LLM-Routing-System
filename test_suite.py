@@ -27,3 +27,24 @@ class TestSuite:
 
 
         self.results = []
+
+
+
+    def _check_cache(self, query):
+        """Check if query exists in cache and return cached response"""
+        return self.cache.get(query)
+
+    def _is_cache_hit(self, cached_response):
+        """Check if we got a cache hit"""
+        return cached_response is not None
+
+    def _get_cache_result(self, cached_response):
+        """Prepare cache hit result data"""
+        return {
+            "response": cached_response,
+            "route": "cache",
+            "used_model": "cache",
+            "speed": 0.1,
+            "accuracy": 1.0,
+            "cost": 0.0
+        }
