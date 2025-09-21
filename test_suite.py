@@ -239,3 +239,35 @@ class TestSuite:
 
 if __name__ == "__main__":
     test_suite = TestSuite()
+
+    test_queries = [
+        "Who wrote the play 'Hamlet'?",
+        "Translate 'Thank you' into Japanese.",
+        "Give me a one-sentence explanation of photosynthesis.",
+        "Write a professional resignation letter for a software engineer.",
+        "Explain quantum computing as if I am 10 years old.",
+        "Calculate the derivative of sin(x**2) and simplify the result.",
+        "Translate 'The early bird catches the worm' into French and give both literal and idiomatic translations.",
+        "Write a shell command to find and delete .log files older than 30 days inside /var/log (show a safe dry-run first).",
+        "Given a CSV with columns date, user_id, amount, provide a pandas snippet to compute daily revenue and list the top 5 days.",
+        "Refactor this Python function to improve readability and performance: def f(a): return [x for x in a if x%2==0]",
+        "Design a REST API endpoint (URL, HTTP method, request/response JSON) for user authentication using JWT, include example request and response.",
+        "Explain the difference between a process and a thread in operating systems in 5 concise bullet points.",
+        "Write a SQL query to find duplicate emails in a users table and delete all but the earliest created_at entry for each duplicate.",
+        "Create a pytest unit test for a function that reverses strings, covering typical and edge cases (empty string, unicode).",
+        "Provide a step-by-step production checklist to secure a Flask web application (config, headers, secrets, deps, logging, backups).",
+        "Write Python code for a quicksort algorithm.",
+        "Summarize the causes of the American Civil War in 6 bullet points.",
+        "Draft a formal apology email to a client for a missed deadline.",
+        "Compare reinforcement learning vs supervised learning in a short table.",
+        "Write a Shakespeare-style sonnet about artificial intelligence.",
+        "Create a Java class for managing a library system with books and members."
+    ]
+
+    # Run all test queries
+    for query in test_queries:
+        print(f"\nProcessing: {query}")
+        test_suite.run_test(query)
+
+    # Get results
+    results_df = test_suite.get_results_table()
