@@ -192,5 +192,27 @@ class TestSuite:
         return route, models_for_route
 
 
+    def _execute_model_invocation(self, query, models_list, start_time):
+        """Execute model invocation with error handling"""
+        try:
+            model_response = self._invoke_model(query, models_list)
+            response_data = self._parse_model_response(model_response, models_list, start_time)
+            response_data["accuracy"] = self._calculate_accuracy(query, response_data["response"])
+            return response_data
+
+        except Exception as e:
+            return self._handle_model_error(e, start_time)
+
+    def _handle_model_flow(self, query, start_time):
+        """Handle the complete model invocation flow"""
+        route, models_list = self._determine_models_to_use(query)
+        response_data = self._execute_model_invocation(query, models_list, start_time)
+
+        # Cache the response
+        self._cache_response(query, response_data["response"])
+
+        return response_data, route
+
+
 if __name__ == "__main__":
     test_suite = TestSuite()
