@@ -264,10 +264,29 @@ if __name__ == "__main__":
         "Create a Java class for managing a library system with books and members."
     ]
 
-    # Run all test queries
+
     for query in test_queries:
         print(f"\nProcessing: {query}")
         test_suite.run_test(query)
 
     # Get results
     results_df = test_suite.get_results_table()
+
+    display_df = results_df.copy()
+    display_df["Response"] = display_df["Response"].apply(lambda s: (s[:200] + "...") if isinstance(s, str) and len(s) > 200 else s)
+    print("\n=== Test Results ===")
+    print(display_df[["Query", "Route", "UsedModel", "Speed", "Accuracy", "Cost", "Cache"]])
+
+
+    excel_file = "test_results.xlsx"
+    results_df.to_excel(excel_file, index=False)
+    print(f"\nResults have been saved to: {excel_file}")
+
+
+    print("\n=== Summary Statistics ===")
+    print(f"Total Queries: {len(results_df)}")
+    print(f"Cache Hits: {len(results_df[results_df['Cache'] == 'Hit'])}")
+    print(f"Average Speed: {results_df['Speed'].mean():.2f} seconds")
+    print(f"Average Accuracy: {results_df['Accuracy'].mean()*100:.2f}%")
+    total_cost = sum(float(cost.strip('$')) for cost in results_df['Cost'])
+    print(f"Total Cost: ${total_cost:.6f}")
