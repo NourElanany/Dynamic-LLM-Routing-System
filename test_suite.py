@@ -152,6 +152,23 @@ class TestSuite:
         return len(query_words.intersection(response_words)) / len(query_words)
 
 
+    def _create_result_entry(self, query, response_data, route, cache_hit):
+        """Create a result entry dictionary"""
+        return {
+            "Query": query,
+            "Response": response_data["response"],
+            "Route": route,
+            "UsedModel": response_data["used_model"],
+            "Speed": round(response_data["speed"], 2),
+            "Accuracy": round(response_data.get("accuracy", self._calculate_accuracy(query, response_data["response"])), 2),
+            "Cost": f"${response_data['cost']:.6f}",
+            "Cache": "Hit" if cache_hit else "Miss"
+        }
+
+    def _save_result(self, result_entry):
+        """Save the result entry to results list"""
+        self.results.append(result_entry)
+
 
 if __name__ == "__main__":
     test_suite = TestSuite()
