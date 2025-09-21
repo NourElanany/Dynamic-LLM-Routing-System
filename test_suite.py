@@ -48,3 +48,22 @@ class TestSuite:
             "accuracy": 1.0,
             "cost": 0.0
         }
+
+    def _classify_query(self, query):
+        """Classify the query to determine routing"""
+        classification = classify_text(query)
+        if isinstance(classification, dict):
+            return classification.get("route", "tier1")
+        else:
+            return str(classification) if classification else "tier1"
+
+    def _get_models_for_route(self, route):
+        """Get model identifiers for a specific route"""
+        return [m[1] for m in self.models.get(route, [])]
+
+    def _get_fallback_models(self):
+        """Get all models flattened from tier1 -> tier2 -> tier3 for fallback"""
+        models_for_route = []
+        for tier in ("tier1", "tier2", "tier3"):
+            models_for_route.extend([m[1] for m in self.models.get(tier, [])])
+        return models_for_route
