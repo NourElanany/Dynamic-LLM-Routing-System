@@ -170,5 +170,27 @@ class TestSuite:
         self.results.append(result_entry)
 
 
+    def _handle_cache_flow(self, query):
+        """Handle the complete cache flow"""
+        cached_response = self._check_cache(query)
+        cache_hit = self._is_cache_hit(cached_response)
+
+        if cache_hit:
+            return self._get_cache_result(cached_response), cache_hit
+
+        return None, cache_hit
+
+    def _determine_models_to_use(self, query):
+        """Determine which models to use based on query classification"""
+        route = self._classify_query(query)
+        models_for_route = self._get_models_for_route(route)
+
+        # If no models found for the classified route, fall back to all models
+        if not models_for_route:
+            models_for_route = self._get_fallback_models()
+
+        return route, models_for_route
+
+
 if __name__ == "__main__":
     test_suite = TestSuite()
