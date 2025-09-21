@@ -213,6 +213,29 @@ class TestSuite:
 
         return response_data, route
 
+    def get_results_table(self):
+        """Return results as pandas DataFrame"""
+        return pd.DataFrame(self.results)
+
+    def run_test(self, query, expected_route=None):
+        """Main test execution function - orchestrates all flows"""
+        start_time = time.time()
+
+        # Try cache flow first
+        cache_result, cache_hit = self._handle_cache_flow(query)
+
+        if cache_result:
+            # Cache hit - use cached data
+            response_data = cache_result
+            route = cache_result["route"]
+        else:
+            # Cache miss - execute model flow
+            response_data, route = self._handle_model_flow(query, start_time)
+
+        # Create and save result entry
+        result_entry = self._create_result_entry(query, response_data, route, cache_hit)
+        self._save_result(result_entry)
+
 
 if __name__ == "__main__":
     test_suite = TestSuite()
