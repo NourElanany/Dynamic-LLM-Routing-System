@@ -59,10 +59,7 @@ class LLMClient:
             tier: FallbackChatGradientAI(models=models_list)
             for tier, models_list in models_config.items()
         }
-        # print("Initialized fallback handlers for tiers:", list(self.fallback_handlers.keys()))
-        # print("Initialized fallback handlers for tiers:", list(self.fallback_handlers.values()))
-        # print("LLMClient initialization complete.")
-    
+        
     async def call(self, model: str, messages: List[Dict[str, str]]) -> str:
         """Call the LLM with the given messages."""
         # Extract the query from messages (assuming single user message for now)
@@ -75,7 +72,7 @@ class LLMClient:
              if any(m[1] == model for m in models)),
             "tier1"  # Default to tier1 if not found
         )
-        #print("DEBUG: Tier: ", tier)
+        
         
         # Use the appropriate fallback handler
         fallback = self.fallback_handlers[tier]
@@ -131,9 +128,9 @@ async def main():
     # Example queries
     queries = [
         "What is the capital of Ghana?",
-        # "Explain quantum computing in simple terms.",
-        #"Create code for a simple weather application that takes a city name and displays the current temperature by calling a weather API.",
-        #"Develop a multi-step plan to reduce carbon emissions in a mid-sized city, considering economic, social, and political factors."
+        "Explain quantum computing in simple terms.",
+        "Create code for a simple weather application that takes a city name and displays the current temperature by calling a weather API.",
+        "Develop a multi-step plan to reduce carbon emissions in a mid-sized city, considering economic, social, and political factors."
     ]
     
     # Process each query
