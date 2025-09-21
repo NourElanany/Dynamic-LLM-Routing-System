@@ -67,3 +67,79 @@ class TestSuite:
         for tier in ("tier1", "tier2", "tier3"):
             models_for_route.extend([m[1] for m in self.models.get(tier, [])])
         return models_for_route
+
+    def _invoke_model(self, query, models_list):
+        """Invoke the model using fallback mechanism"""
+        fallback = FallbackChatGradientAI(models=models_list)
+        return fallback.invoke(query)
+
+    def _parse_model_response(self, model_response, models_list, start_time):
+        """Parse the response from model invocation"""
+        if isinstance(model_response, dict):
+            return {
+                "response": model_response.get("response", ""),
+                "used_model": model_response.get("model", ""),
+                "speed": model_response.get("time", time.time() - start_time),
+                "tokens": model_response.get("tokens", 0),
+                "cost": model_response.get("cost", 0.0)
+            }
+        else:
+            return {
+                "response": str(model_response),
+                "used_model": models_list[0] if models_list else "unknown",
+                "speed": time.time() - start_time,
+                "tokens": 0,
+                "cost": 0.0
+            }
+
+    def _handle_model_error(self, error, start_time):
+        """Handle errors during model invocation"""
+        print(f"Error getting response: {str(error)}")
+        return {
+            "response": f"Error: {str(error)}",
+            "used_model": "error",
+            "speed": time.time() - start_time,
+            "accuracy": 0.0,
+            "cost": 0.0
+        }
+
+
+    def _invoke_model(self, query, models_list):
+        """Invoke the model using fallback mechanism"""
+        fallback = FallbackChatGradientAI(models=models_list)
+        return fallback.invoke(query)
+
+    def _parse_model_response(self, model_response, models_list, start_time):
+        """Parse the response from model invocation"""
+        if isinstance(model_response, dict):
+            return {
+                "response": model_response.get("response", ""),
+                "used_model": model_response.get("model", ""),
+                "speed": model_response.get("time", time.time() - start_time),
+                "tokens": model_response.get("tokens", 0),
+                "cost": model_response.get("cost", 0.0)
+            }
+        else:
+            return {
+                "response": str(model_response),
+                "used_model": models_list[0] if models_list else "unknown",
+                "speed": time.time() - start_time,
+                "tokens": 0,
+                "cost": 0.0
+            }
+
+    def _handle_model_error(self, error, start_time):
+        """Handle errors during model invocation"""
+        print(f"Error getting response: {str(error)}")
+        return {
+            "response": f"Error: {str(error)}",
+            "used_model": "error",
+            "speed": time.time() - start_time,
+            "accuracy": 0.0,
+            "cost": 0.0
+        }
+
+
+
+if __name__ == "__main__":
+    test_suite = TestSuite()
