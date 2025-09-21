@@ -31,15 +31,12 @@ class TestSuite:
 
 
     def _check_cache(self, query):
-        """Check if query exists in cache and return cached response"""
         return self.cache.get(query)
 
     def _is_cache_hit(self, cached_response):
-        """Check if we got a cache hit"""
         return cached_response is not None
 
     def _get_cache_result(self, cached_response):
-        """Prepare cache hit result data"""
         return {
             "response": cached_response,
             "route": "cache",
@@ -50,7 +47,6 @@ class TestSuite:
         }
 
     def _classify_query(self, query):
-        """Classify the query to determine routing"""
         classification = classify_text(query)
         if isinstance(classification, dict):
             return classification.get("route", "tier1")
@@ -58,23 +54,19 @@ class TestSuite:
             return str(classification) if classification else "tier1"
 
     def _get_models_for_route(self, route):
-        """Get model identifiers for a specific route"""
         return [m[1] for m in self.models.get(route, [])]
 
     def _get_fallback_models(self):
-        """Get all models flattened from tier1 -> tier2 -> tier3 for fallback"""
         models_for_route = []
         for tier in ("tier1", "tier2", "tier3"):
             models_for_route.extend([m[1] for m in self.models.get(tier, [])])
         return models_for_route
 
     def _invoke_model(self, query, models_list):
-        """Invoke the model using fallback mechanism"""
         fallback = FallbackChatGradientAI(models=models_list)
         return fallback.invoke(query)
 
     def _parse_model_response(self, model_response, models_list, start_time):
-        """Parse the response from model invocation"""
         if isinstance(model_response, dict):
             return {
                 "response": model_response.get("response", ""),
@@ -93,7 +85,6 @@ class TestSuite:
             }
 
     def _handle_model_error(self, error, start_time):
-        """Handle errors during model invocation"""
         print(f"Error getting response: {str(error)}")
         return {
             "response": f"Error: {str(error)}",
@@ -105,12 +96,10 @@ class TestSuite:
 
 
     def _invoke_model(self, query, models_list):
-        """Invoke the model using fallback mechanism"""
         fallback = FallbackChatGradientAI(models=models_list)
         return fallback.invoke(query)
 
     def _parse_model_response(self, model_response, models_list, start_time):
-        """Parse the response from model invocation"""
         if isinstance(model_response, dict):
             return {
                 "response": model_response.get("response", ""),
@@ -129,7 +118,6 @@ class TestSuite:
             }
 
     def _handle_model_error(self, error, start_time):
-        """Handle errors during model invocation"""
         print(f"Error getting response: {str(error)}")
         return {
             "response": f"Error: {str(error)}",
@@ -140,11 +128,9 @@ class TestSuite:
         }
 
     def _cache_response(self, query, response):
-        """Cache the response for future use"""
         self.cache.set(query, response)
 
     def _calculate_accuracy(self, query, response):
-        """A very simple token-based overlap accuracy"""
         query_words = set(query.lower().split())
         response_words = set(response.lower().split())
         if not query_words:
@@ -153,7 +139,6 @@ class TestSuite:
 
 
     def _create_result_entry(self, query, response_data, route, cache_hit):
-        """Create a result entry dictionary"""
         return {
             "Query": query,
             "Response": response_data["response"],
@@ -166,12 +151,10 @@ class TestSuite:
         }
 
     def _save_result(self, result_entry):
-        """Save the result entry to results list"""
         self.results.append(result_entry)
 
 
     def _handle_cache_flow(self, query):
-        """Handle the complete cache flow"""
         cached_response = self._check_cache(query)
         cache_hit = self._is_cache_hit(cached_response)
 
@@ -181,7 +164,6 @@ class TestSuite:
         return None, cache_hit
 
     def _determine_models_to_use(self, query):
-        """Determine which models to use based on query classification"""
         route = self._classify_query(query)
         models_for_route = self._get_models_for_route(route)
 
@@ -193,7 +175,6 @@ class TestSuite:
 
 
     def _execute_model_invocation(self, query, models_list, start_time):
-        """Execute model invocation with error handling"""
         try:
             model_response = self._invoke_model(query, models_list)
             response_data = self._parse_model_response(model_response, models_list, start_time)
@@ -204,7 +185,6 @@ class TestSuite:
             return self._handle_model_error(e, start_time)
 
     def _handle_model_flow(self, query, start_time):
-        """Handle the complete model invocation flow"""
         route, models_list = self._determine_models_to_use(query)
         response_data = self._execute_model_invocation(query, models_list, start_time)
 
@@ -218,18 +198,18 @@ class TestSuite:
         return pd.DataFrame(self.results)
 
     def run_test(self, query, expected_route=None):
-        """Main test execution function - orchestrates all flows"""
+
         start_time = time.time()
 
         # Try cache flow first
         cache_result, cache_hit = self._handle_cache_flow(query)
 
         if cache_result:
-            # Cache hit - use cached data
+            # Cache hit
             response_data = cache_result
             route = cache_result["route"]
         else:
-            # Cache miss - execute model flow
+            # Cache miss
             response_data, route = self._handle_model_flow(query, start_time)
 
         # Create and save result entry
