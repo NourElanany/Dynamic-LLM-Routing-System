@@ -139,6 +139,18 @@ class TestSuite:
             "cost": 0.0
         }
 
+    def _cache_response(self, query, response):
+        """Cache the response for future use"""
+        self.cache.set(query, response)
+
+    def _calculate_accuracy(self, query, response):
+        """A very simple token-based overlap accuracy"""
+        query_words = set(query.lower().split())
+        response_words = set(response.lower().split())
+        if not query_words:
+            return 0.0
+        return len(query_words.intersection(response_words)) / len(query_words)
+
 
 
 if __name__ == "__main__":
