@@ -3,19 +3,13 @@ Streamlit App for Dynamic LLM Routing using LangGraph
 """
 
 import streamlit as st
-import asyncio
 import time
 import pandas as pd
-from typing import Dict, List
-import plotly.express as px
-import plotly.graph_objects as go
 from io import StringIO
 from config import *
 
 # Import modules
 try:
-    from classifier import classify_text
-    from fallback import FallbackChatGradientAI
     from semantic_cache import SemanticCache
     from langgraph_router import Router
 except ImportError as e:

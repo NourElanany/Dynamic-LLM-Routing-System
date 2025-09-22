@@ -1,12 +1,8 @@
 '''
 Main application for dynamic LLM routing using LangGraph
 '''
-import asyncio
-from typing import Dict, List, Any
-from classifier import classify_text
-from fallback import FallbackChatGradientAI
 from semantic_cache import SemanticCache
-from langgraph_router import Router, RouterState
+from langgraph_router import Router
 from config import *
 
 # Model configuration

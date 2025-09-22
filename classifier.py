@@ -1,16 +1,7 @@
-import pandas as pd
 import torch
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
 from transformers import (
-    AutoTokenizer,
-    AutoModelForSequenceClassification,
-    Trainer,
-    TrainingArguments,
-    DataCollatorWithPadding,
     pipeline
 )
-from datasets import Dataset
 model_path = "D:/VSCODE/namasoft/best_model"
 
 pipe = pipeline("text-classification", model=model_path, tokenizer=model_path, device=0 if torch.cuda.is_available() else -1)
