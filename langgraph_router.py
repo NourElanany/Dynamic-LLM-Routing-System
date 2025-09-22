@@ -81,6 +81,7 @@ class Router:
     async def check_cache(self, state: RouterState) -> RouterState:
         """Check if the query already exists in the semantic cache."""
         logger.debug("Checking cache for query")
+        print("DEBUG: Cache check state:")
         response = self.cache.get(state["query"])
         if response is not None:
             return {
@@ -95,6 +96,7 @@ class Router:
     async def classify_query(self, state: RouterState) -> RouterState:
         """Classify the query into Small (S), Medium (M), or Advanced (A)."""
         logger.debug("Classifying query")
+        print("DEBUG: Classification state:")
         try:
             if not state.get("query"):
                 state["error"] = "No query provided for classification"
@@ -107,6 +109,7 @@ class Router:
                 return state
 
             logger.debug(f"Query classified as: {classification}")
+            print(f"[DEBUG] Query classified as: {classification}")
             return {**state, "classification": classification, "error": None}
 
         except Exception as e:
@@ -118,6 +121,7 @@ class Router:
     async def select_model(self, state: RouterState) -> RouterState:
         """Select a model from the tier based on classification and retry count."""
         logger.debug("Selecting model")
+        print("DEBUG: Model selection state:")
         state = dict(state)
 
         try:
@@ -127,6 +131,7 @@ class Router:
                 return state
 
             tier_key = self._map_classification_to_tier(tier)
+            print(f"[DEBUG] Mapped classification {tier} to tier key {tier_key}")
             models = self.models_config.get(tier_key, [])
 
             if not models:
@@ -158,6 +163,7 @@ class Router:
             logger.info(
                 f"Selected model: {selected_model} for tier {tier_key} (attempt {retry_count + 1}/{max_retries})"
             )
+            print(f"[INFO] Selected model: {selected_model} for tier {tier_key} (attempt {retry_count + 1}/{max_retries})")
             return state
 
         except Exception as e:
@@ -174,11 +180,13 @@ class Router:
     async def call_llm(self, state: RouterState) -> RouterState:
         """Call the LLM client with the selected model."""
         logger.debug("Calling LLM")
+        print("DEBUG: LLM call state:")
         if not state.get("selected_model"):
             return {**state, "error": "No model selected for LLM call"}
 
         try:
             model_identifier = state["selected_model"]
+            print(f"[DEBUG] Using model identifier: {model_identifier}")
             if isinstance(model_identifier, (list, tuple)) and len(model_identifier) > 1:
                 model_identifier = model_identifier[1]
 
@@ -211,6 +219,7 @@ class Router:
 
     def handle_llm_response(self, state: RouterState) -> str:
         """Decide next step after LLM response."""
+        print("DEBUG: LLM response handler state:")
         if state.get("llm_response"):
             return "success"
 

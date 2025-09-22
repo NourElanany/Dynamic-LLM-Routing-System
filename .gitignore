@@ -34,7 +34,18 @@ build/
 ### VS Code ###
 .vscode/
 
+### Python ###
+__pycache__/
+*.pyc
+
+#best_model
+best_model/
+
 ### Mac OS ###
 ### Mac OS ###
 .DS_Store
 .idea/
+
+
+## API keys
+*.env

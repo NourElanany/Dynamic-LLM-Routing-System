@@ -8,9 +8,16 @@ load_dotenv()
 
 # Map models to keys
 MODEL_KEY_MAP = {
-    "qwen-2.5-72b-instruct": "qwen-2.5-72b-instruct",
-    "mistral-7b-instruct": "mistral-7b-instruct",
-    "llama-3.3-8b-instruct": "llama-3.3-8b-instruct",
+    "mistralai/mistral-7b-instruct:free": "mistral-7b-instruct",
+    "qwen/qwen2.5-vl-32b-instruct:free": "qwen2.5-vl-32b-instruct",
+    "meta-llama/llama-3.3-8b-instruct:free": "llama-3.3-8b-instruct",
+    "qwen/qwen-2.5-72b-instruct:free": "qwen-2.5-72b-instruct",
+    "openai/gpt-oss-20b:free": "gpt-oss-20b",
+    "mistralai/devstral-small-2505:free": "devstral-small-2505",
+    "qwen/qwq-32b:free": "qwq-32b",
+    "qwen/qwen-2.5-coder-32b-instruct:free": "qwen-2.5-coder-32b-instruct",
+    "deepseek/deepseek-r1-distill-llama-70b:free": "deepseek-r1-distill-llama-70b",
+    "meta-llama/llama-3.3-70b-instruct:free": "llama-3.3-70b-instruct",
 }
 
 # Price per 1M tokens
@@ -18,6 +25,13 @@ PRICES = {
     "qwen-2.5-72b-instruct": {"input": 0.7, "output": 0.7},
     "mistral-7b-instruct": {"input": 0.25, "output": 0.25},
     "llama-3.3-8b-instruct": {"input": 0.15, "output": 0.15},
+    "qwen/qwen2.5-vl-32b-instruct:free": {"input": 0.15, "output": 0.15},
+    "openai/gpt-oss-20b:free": {"input": 0.15, "output": 0.15},
+    "mistralai/devstral-small-2505:free": {"input": 0.15, "output": 0.15},
+    "qwen/qwq-32b:free": {"input": 0.15, "output": 0.15},
+    "qwen/qwen-2.5-coder-32b-instruct:free": {"input": 0.15, "output": 0.15},
+    "deepseek/deepseek-r1-distill-llama-70b:free": {"input": 0.15, "output": 0.15},
+    "meta-llama/llama-3.3-70b-instruct:free": {"input": 0.15, "output": 0.15},
 }
 
 
@@ -41,6 +55,12 @@ class FallbackChatGradientAI:
         last_exception = None
 
         for model_name in self.models:
+            print(f"Attempting request with model: {model_name}")
+            model_name=model_name
+            if isinstance(model_name, (list, tuple)) and len(model_name) > 1:
+                print(f"[DEBUG] Selected model tuple: {model_name}")
+                model_name = model_name[1]  # Use the model identifier
+            print("model_name",model_name)
             api_key_name = MODEL_KEY_MAP.get(model_name)
             api_key = os.getenv(api_key_name)
 

@@ -4,7 +4,7 @@ Main application for dynamic LLM routing using LangGraph
 import asyncio
 from typing import Dict, List, Any
 from classifier import classify_text
-from fallback3 import FallbackChatGradientAI
+from fallback import FallbackChatGradientAI
 from semantic_cache import SemanticCache
 from langgraph_router import Router, RouterState
 
@@ -16,12 +16,12 @@ MODELS_CONFIG = {
         # ["mistral-7b-instruct", "mistralai/mistral-7b-instruct:free"],
         ["qwen2.5-vl-32b-instruct", "qwen/qwen2.5-vl-32b-instruct:free"],
         
-        # ["gpt-oss-20b", "openai/gpt-oss-20b:free"],
-        # ["devstral-small-2505", "mistralai/devstral-small-2505:free"],
-        # ["qwq-32b", "qwen/qwq-32b:free"],
-        # ["qwen-2.5-coder-32b-instruct", "qwen/qwen-2.5-coder-32b-instruct:free"],
-        # ["deepseek-r1-distill-llama-70b", "deepseek/deepseek-r1-distill-llama-70b:free"],
-        # ["llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
+        ["gpt-oss-20b", "openai/gpt-oss-20b:free"],
+        ["devstral-small-2505", "mistralai/devstral-small-2505:free"],
+        ["qwq-32b", "qwen/qwq-32b:free"],
+        ["qwen-2.5-coder-32b-instruct", "qwen/qwen-2.5-coder-32b-instruct:free"],
+        ["deepseek-r1-distill-llama-70b", "deepseek/deepseek-r1-distill-llama-70b:free"],
+        ["llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
     ],
     "tier2": [
         ["mistral-7b-instruct", "mistralai/mistral-7b-instruct:free"],
@@ -55,31 +55,24 @@ class LLMClient:
     
     def __init__(self, models_config: Dict[str, List[List[str]]]):
         self.models_config = models_config
+        # Initialize fallback handlers for each tier
         self.fallback_handlers = {
             tier: FallbackChatGradientAI(models=models_list)
             for tier, models_list in models_config.items()
         }
-        
-    async def call(self, model: str, messages: List[Dict[str, str]]) -> str:
-        """Call the LLM with the given messages."""
-        # Extract the query from messages (assuming single user message for now)
+    
+    async def call(self, model: str, messages: List[Dict[str, str]], tier: str) -> str:
+        """Call the LLM with the given messages and force correct tier fallback."""
+        # Extract the query (assume one user message)
         query = next((msg["content"] for msg in messages if msg["role"] == "user"), "")
-        #print("DEBUG: Query: ", query)
-        
-        # Determine which tier this model belongs to
-        tier = next(
-            (t for t, models in self.models_config.items() 
-             if any(m[1] == model for m in models)),
-            "tier1"  # Default to tier1 if not found
-        )
-        
-        
-        # Use the appropriate fallback handler
-        fallback = self.fallback_handlers[tier]
-        #print("DEBUG: Fallback: ", fallback)
+
+        # Pick the correct fallback handler (default = tier1 if not found)
+        fallback = self.fallback_handlers.get(tier, self.fallback_handlers["tier1"])
+
+        # Call the model
         response = fallback.invoke(query)
-        
-        # Return the response (assuming the first element is the response text)
+
+        # Return clean response
         return response[0] if isinstance(response, (list, tuple)) else response
 
 async def process_query(query: str, router: Router) -> None:
@@ -128,9 +121,9 @@ async def main():
     # Example queries
     queries = [
         "What is the capital of Ghana?",
-        "Explain quantum computing in simple terms.",
-        "Create code for a simple weather application that takes a city name and displays the current temperature by calling a weather API.",
-        "Develop a multi-step plan to reduce carbon emissions in a mid-sized city, considering economic, social, and political factors."
+        #"Explain quantum computing in simple terms.",
+        #"Create code for a simple weather application that takes a city name and displays the current temperature by calling a weather API.",
+        #"Develop a multi-step plan to reduce carbon emissions in a mid-sized city, considering economic, social, and political factors."
     ]
     
     # Process each query

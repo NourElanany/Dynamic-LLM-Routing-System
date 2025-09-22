@@ -11,7 +11,7 @@ from transformers import (
     pipeline
 )
 from datasets import Dataset
-model_path = "best_model"
+model_path = "D:/VSCODE/namasoft/best_model"
 
 pipe = pipeline("text-classification", model=model_path, tokenizer=model_path, device=0 if torch.cuda.is_available() else -1)
 
