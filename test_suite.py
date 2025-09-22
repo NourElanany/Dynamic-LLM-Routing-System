@@ -2,28 +2,17 @@ import pandas as pd
 from semantic_cache import SemanticCache
 from classifier import classify_text
 from fallback import FallbackChatGradientAI
+import time
+
+from config import MODELS_CONFIG
 
 class TestSuite:
-    def __init__(self):
+    def __init__(self,MODELS_CONFIG):
         self.cache = SemanticCache()
 
         # Define models for different tiers
 
-        self.models = {
-            "tier1": [
-                ["llama-3.3-8b-instruct", "meta-llama/llama-3.3-8b-instruct:free"],
-                ["mistral-7b-instruct", "mistralai/mistral-7b-instruct:free"],
-                ["qwen2.5-vl-32b-instruct", "qwen/qwen2.5-vl-32b-instruct:free"]
-            ],
-            "tier2": [
-                ["qwen-2.5-72b-instruct", "qwen/qwen-2.5-72b-instruct:free"],
-                ["gpt-oss-20b", "openai/gpt-oss-20b:free"]
-            ],
-            "tier3": [
-                ["llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
-                ["deepseek-r1-distill-llama-70b", "deepseek/deepseek-r1-distill-llama-70b:free"]
-            ]
-        }
+        self.models = MODELS_CONFIG
 
 
         self.results = []
@@ -218,29 +207,20 @@ class TestSuite:
 
 
 if __name__ == "__main__":
-    test_suite = TestSuite()
+
+    MODELS_CONFIG= MODELS_CONFIG
+    test_suite = TestSuite(MODELS_CONFIG)
 
     test_queries = [
         "Who wrote the play 'Hamlet'?",
         "Translate 'Thank you' into Japanese.",
         "Give me a one-sentence explanation of photosynthesis.",
-        "Write a professional resignation letter for a software engineer.",
         "Explain quantum computing as if I am 10 years old.",
-        "Calculate the derivative of sin(x**2) and simplify the result.",
-        "Translate 'The early bird catches the worm' into French and give both literal and idiomatic translations.",
-        "Write a shell command to find and delete .log files older than 30 days inside /var/log (show a safe dry-run first).",
-        "Given a CSV with columns date, user_id, amount, provide a pandas snippet to compute daily revenue and list the top 5 days.",
         "Refactor this Python function to improve readability and performance: def f(a): return [x for x in a if x%2==0]",
         "Design a REST API endpoint (URL, HTTP method, request/response JSON) for user authentication using JWT, include example request and response.",
         "Explain the difference between a process and a thread in operating systems in 5 concise bullet points.",
-        "Write a SQL query to find duplicate emails in a users table and delete all but the earliest created_at entry for each duplicate.",
-        "Create a pytest unit test for a function that reverses strings, covering typical and edge cases (empty string, unicode).",
-        "Provide a step-by-step production checklist to secure a Flask web application (config, headers, secrets, deps, logging, backups).",
-        "Write Python code for a quicksort algorithm.",
         "Summarize the causes of the American Civil War in 6 bullet points.",
         "Draft a formal apology email to a client for a missed deadline.",
-        "Compare reinforcement learning vs supervised learning in a short table.",
-        "Write a Shakespeare-style sonnet about artificial intelligence.",
         "Create a Java class for managing a library system with books and members."
     ]
 

@@ -60,7 +60,7 @@ class Router:
         self.workflow = self._create_workflow()
 
 
-    async def store_in_cache(self, state: RouterState) -> RouterState:
+    def store_in_cache(self, state: RouterState) -> RouterState:
         """Store the LLM response in the semantic cache if not already cached."""
         try:
             if state.get("llm_response") and not state.get("cache_hit", False):
@@ -78,7 +78,7 @@ class Router:
             logger.warning(f"Failed to store in cache: {str(e)}")
             return state
 
-    async def check_cache(self, state: RouterState) -> RouterState:
+    def check_cache(self, state: RouterState) -> RouterState:
         """Check if the query already exists in the semantic cache."""
         logger.debug("Checking cache for query")
         print("DEBUG: Cache check state:")
@@ -93,7 +93,7 @@ class Router:
         return {**state, "cache_hit": False}
 
 
-    async def classify_query(self, state: RouterState) -> RouterState:
+    def classify_query(self, state: RouterState) -> RouterState:
         """Classify the query into Small (S), Medium (M), or Advanced (A)."""
         logger.debug("Classifying query")
         print("DEBUG: Classification state:")
@@ -118,7 +118,7 @@ class Router:
             return state
 
 
-    async def select_model(self, state: RouterState) -> RouterState:
+    def select_model(self, state: RouterState) -> RouterState:
         """Select a model from the tier based on classification and retry count."""
         logger.debug("Selecting model")
         print("DEBUG: Model selection state:")
@@ -177,7 +177,7 @@ class Router:
         return mapping.get(classification, "tier1")
 
 
-    async def call_llm(self, state: RouterState) -> RouterState:
+    def call_llm(self, state: RouterState) -> RouterState:
         """Call the LLM client with the selected model."""
         logger.debug("Calling LLM")
         print("DEBUG: LLM call state:")
@@ -191,7 +191,7 @@ class Router:
                 model_identifier = model_identifier[1]
 
             if self.llm_client:
-                response = await self.llm_client.call(
+                response = self.llm_client.call(
                     model_identifier,
                     [{"role": "user", "content": state["query"]}],
                     state["model_tier"],
@@ -209,7 +209,7 @@ class Router:
             return {**state, "error": str(e)}
 
 
-    async def handle_error(self, state: RouterState) -> RouterState:
+    def handle_error(self, state: RouterState) -> RouterState:
         """Pass through state after error."""
         return state
 
@@ -279,7 +279,7 @@ class Router:
         return workflow
 
 
-    async def route(self, query: str) -> RouterState:
+    def route(self, query: str) -> RouterState:
         """Run a query through the workflow and return the final state."""
         initial_state = RouterState(
             query=query,
@@ -293,5 +293,5 @@ class Router:
             error=None,
             retry_count=0,
         )
-        result = await self.workflow.ainvoke(initial_state)
+        result = self.workflow.invoke(initial_state)
         return result

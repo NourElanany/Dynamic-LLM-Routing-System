@@ -10,6 +10,7 @@ from typing import Dict, List
 import plotly.express as px
 import plotly.graph_objects as go
 from io import StringIO
+from config import *
 
 # Import modules
 try:
@@ -22,41 +23,7 @@ except ImportError as e:
     st.stop()
 
 # Model configuration (tiers)
-MODELS_CONFIG = {
-    "tier1": [
-        ["qwen-2.5-72b-instruct", "qwen/qwen-2.5-72b-instruct:free"],
-        ["llama-3.3-8b-instruct", "meta-llama/llama-3.3-8b-instruct:free"],
-        ["mistral-7b-instruct", "mistralai/mistral-7b-instruct:free"],
-        ["qwen2.5-vl-32b-instruct", "qwen/qwen2.5-vl-32b-instruct:free"],
-        ["gpt-oss-20b", "openai/gpt-oss-20b:free"],
-        ["devstral-small-2505", "mistralai/devstral-small-2505:free"],
-        ["qwq-32b", "qwen/qwq-32b:free"],
-        ["qwen-2.5-coder-32b-instruct", "qwen/qwen-2.5-coder-32b-instruct:free"],
-        ["deepseek-r1-distill-llama-70b", "deepseek/deepseek-r1-distill-llama-70b:free"],
-        ["llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
-    ],
-    "tier2": [
-        ["qwen-2.5-72b-instruct", "qwen/qwen-2.5-72b-instruct:free"],
-        ["mistral-7b-instruct", "mistralai/mistral-7b-instruct:free"],
-        ["gpt-oss-20b", "openai/gpt-oss-20b:free"],
-        ["devstral-small-2505", "mistralai/devstral-small-2505:free"],
-        ["qwq-32b", "qwen/qwq-32b:free"],
-        ["qwen-2.5-coder-32b-instruct", "qwen/qwen-2.5-coder-32b-instruct:free"],
-        ["deepseek-r1-distill-llama-70b", "deepseek/deepseek-r1-distill-llama-70b:free"],
-        ["llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
-    ],
-    "tier3": [
-        ["qwen-2.5-coder-32b-instruct", "qwen/qwen-2.5-coder-32b-instruct:free"],
-        ["mistral-7b-instruct", "mistralai/mistral-7b-instruct:free"],
-        ["deepseek-r1-distill-llama-70b", "deepseek/deepseek-r1-distill-llama-70b:free"],
-        ["llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
-        ["qwen-2.5-72b-instruct", "qwen/qwen-2.5-72b-instruct:free"],
-        ["gpt-oss-20b", "openai/gpt-oss-20b:free"],
-        ["devstral-small-2505", "mistralai/devstral-small-2505:free"],
-        ["qwq-32b", "qwen/qwq-32b:free"],
-    ]
-}
-
+MODELS_CONFIG =MODELS_CONFIG
 
 class SimpleCache:
     """Basic cache fallback"""
@@ -68,25 +35,25 @@ class SimpleCache:
         self.cache[key] = value
 
 
-class Classifier:
-    """Wrapper for classifier"""
-    def __init__(self):
-        self.classify_text = classify_text
+# class Classifier:
+#     """Wrapper for classifier"""
+#     def __init__(self):
+#         self.classify_text = classify_text
 
 
-class LLMClient:
-    """LLM client with fallback"""
-    def __init__(self, models_config: Dict[str, List[List[str]]]):
-        self.fallback_handlers = {
-            tier: FallbackChatGradientAI(models=models_list)
-            for tier, models_list in models_config.items()
-        }
+# class LLMClient:
+#     """LLM client with fallback"""
+#     def __init__(self, models_config: Dict[str, List[List[str]]]):
+#         self.fallback_handlers = {
+#             tier: FallbackChatGradientAI(models=models_list)
+#             for tier, models_list in models_config.items()
+#         }
 
-    async def call(self, model: str, messages: List[Dict[str, str]], tier: str) -> str:
-        query = next((msg["content"] for msg in messages if msg["role"] == "user"), "")
-        fallback = self.fallback_handlers.get(tier, self.fallback_handlers["tier1"])
-        response = fallback.invoke(query)
-        return response[0] if isinstance(response, (list, tuple)) else response
+#     async def call(self, model: str, messages: List[Dict[str, str]], tier: str) -> str:
+#         query = next((msg["content"] for msg in messages if msg["role"] == "user"), "")
+#         fallback = self.fallback_handlers.get(tier, self.fallback_handlers["tier1"])
+#         response = fallback.invoke(query)
+#         return response[0] if isinstance(response, (list, tuple)) else response
 
 
 @st.cache_resource
@@ -111,18 +78,18 @@ def initialize_router():
     )
 
 
-async def process_single_query(query: str, router: Router):
+def process_single_query(query: str, router: Router):
     """Process one query through router"""
     start_time = time.time()
     try:
-        result = await router.route(query)
+        result = router.route(query)
         cache_hit = result.get("cache_hit", False)
         classification = result.get("classification", "Unknown")
         model_tier = result.get("model_tier", "tier1")
         selected_model = result.get("selected_model", "Unknown")
 
         messages = [{"role": "user", "content": query}]
-        llm_response = await router.llm_client.call(selected_model, messages, model_tier)
+        llm_response = router.llm_client.call(selected_model, messages, model_tier)
         response = result.get("llm_response") or llm_response or result.get("cached_response", "")
         if isinstance(response, dict):
             actual_response = response.get("response", str(response))
@@ -182,7 +149,7 @@ def main():
         query = st.text_area("Enter your query:", height=100, placeholder="Type your question...")
         if st.button("🚀 Process Query", type="primary", disabled=not query.strip()):
             with st.spinner("🔄 Processing query..."):
-                result = asyncio.run(process_single_query(query, router))
+                result = process_single_query(query, router)
             if result["success"]:
                 # Metrics
                 col1, col2, col3, col4 = st.columns(4)
@@ -228,7 +195,7 @@ def main():
             results = []
             for i, query in enumerate(test_queries):
                 progress.progress((i+1)/len(test_queries))
-                result = asyncio.run(process_single_query(query, router))
+                result = process_single_query(query, router)
                 results.append({
                     "Query": query,
                     "Response": result.get("response", ""),

@@ -9,6 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from classifier import classify_text
 from fallback import FallbackChatGradientAI
 from semantic_cache import SemanticCache
+from config import MODELS_CONFIG
 
 # Disable LangSmith if no API key is provided
 if not os.getenv("LANGSMITH_API_KEY"):
@@ -30,23 +31,7 @@ class RouterState(MessagesState):
     retry_count: int = 0
 
 # Model configuration
-MODELS_CONFIG = {
-    "tier1": [
-        ["qwen-2.5-72b-instruct", "qwen/qwen-2.5-72b-instruct:free"],
-        ["llama-3.3-8b-instruct", "meta-llama/llama-3.3-8b-instruct:free"],
-        ["mistral-7b-instruct", "mistralai/mistral-7b-instruct:free"],
-    ],
-    "tier2": [
-        ["gpt-oss-20b", "openai/gpt-oss-20b:free"],
-        ["devstral-small-2505", "mistralai/devstral-small-2505:free"],
-        ["qwq-32b", "qwen/qwq-32b:free"],
-    ],
-    "tier3": [
-        ["qwen-2.5-coder-32b-instruct", "qwen/qwen-2.5-coder-32b-instruct:free"],
-        ["deepseek-r1-distill-llama-70b", "deepseek/deepseek-r1-distill-llama-70b:free"],
-        ["llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct:free"],
-    ]
-}
+MODELS_CONFIG = MODELS_CONFIG
 
 # Helper function to get latest human message
 def get_latest_human_message(messages: List[BaseMessage]) -> str:
