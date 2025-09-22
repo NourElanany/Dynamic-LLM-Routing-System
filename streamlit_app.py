@@ -35,27 +35,6 @@ class SimpleCache:
         self.cache[key] = value
 
 
-# class Classifier:
-#     """Wrapper for classifier"""
-#     def __init__(self):
-#         self.classify_text = classify_text
-
-
-# class LLMClient:
-#     """LLM client with fallback"""
-#     def __init__(self, models_config: Dict[str, List[List[str]]]):
-#         self.fallback_handlers = {
-#             tier: FallbackChatGradientAI(models=models_list)
-#             for tier, models_list in models_config.items()
-#         }
-
-#     async def call(self, model: str, messages: List[Dict[str, str]], tier: str) -> str:
-#         query = next((msg["content"] for msg in messages if msg["role"] == "user"), "")
-#         fallback = self.fallback_handlers.get(tier, self.fallback_handlers["tier1"])
-#         response = fallback.invoke(query)
-#         return response[0] if isinstance(response, (list, tuple)) else response
-
-
 @st.cache_resource
 def initialize_router():
     """Init router with cache"""
