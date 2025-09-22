@@ -80,7 +80,7 @@ The system includes an intuitive Streamlit-based GUI for easy interaction:
 
 ### LangGraph Studio Integration
 
-![LangGraph Studio Run](assets/LLM_Router_Flowchart.png)
+![LangGraph Studio Run](assets/LangGraph.jpeg)
 *Real-time workflow execution in LangGraph Studio*
 
 ---
@@ -161,6 +161,39 @@ Actual Complex (250 queries):
 ### Project Structure
 
 ```
+Dynamic-LLM-Routing-System/
+│
+├── BERT_LAST_V.ipynb           # Jupyter notebook for BERT experiments
+├── classifier.py               # Classifier logic
+├── config.py                   # Configuration settings
+├── environment.yml             # Conda environment dependencies
+├── fallback.py                 # Fallback logic for routing
+├── langgraph_router.py         # Main routing logic using LangGraph
+├── logger_config.py            # Logger configuration
+├── main.py                     # Main entry point
+├── README.md                   # Project documentation
+├── semantic_cache.json         # Cached semantic data
+├── semantic_cache.py           # Semantic cache logic
+├── streamlit_app.py            # Streamlit web app
+├── test_results.xlsx           # Test results (Excel)
+├── test_suite.py               # Test suite for the project
+│
+├── assets/                     # Images and assets for documentation
+│   ├── LangGraph.jpeg
+│   ├── LangGraph1.jpeg
+│   ├── LLM_Router_Flowchart.png
+│   └── ...
+│
+├── run_doc/                    # Run documentation screenshots
+│   ├── Chat_Langgraph_studio.png
+│   ├── Graph_Langgraph_studio.png
+│   └── ...
+│
+└── studio/                     # Studio-related files and cache
+  ├── langgraph.json
+  ├── semantic_cache.json
+  ├── studio_graph.py
+  └── __pycache__/
 
 ```
 
@@ -228,8 +261,7 @@ streamlit run streamlit_app.py
 
 #### Command Line Interface
 ```python
-import asyncio
-from main2 import Router, Classifier, SemanticCache
+from main import Router, Classifier, SemanticCache
 
 # Initialize components
 cache = SemanticCache(default_ttl=3600)
@@ -237,18 +269,18 @@ classifier = Classifier()
 router = Router(models_config=MODELS_CONFIG, cache=cache, classifier=classifier)
 
 # Process query
-async def process_query():
-    result = await router.route("Explain machine learning in simple terms")
+def process_query():
+    result = router.route("Explain machine learning in simple terms")
     print(f"Classification: {result['classification']}")
     print(f"Used Model: {result['used_model']}")
     print(f"Response: {result['llm_response']}")
 
-asyncio.run(process_query())
+process_query()
 ```
 
 #### LangGraph Studio
 ```bash
-langgraph up
+langgraph dev
 ```
 
 ### Testing
@@ -260,7 +292,7 @@ python testsuite.py
 # Test individual components
 python classifier.py  # Test classification
 python semantic_cache.py  # Test caching
-python fallback3.py  # Test model fallbacks
+python fallback.py  # Test model fallbacks
 ```
 
 ---
